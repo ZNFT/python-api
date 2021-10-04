@@ -2,7 +2,7 @@ import json
 from cryptography.fernet import Fernet
 import base58
 from solana.account import Account 
-from metaplex.transactions import deploy, topup, mint, send, burn
+from metaplex.transactions import deploy, topup, mint, send, burn, metadataUpdate
 from utils.execution_engine import execute
 
 class MetaplexAPI():
@@ -75,6 +75,26 @@ class MetaplexAPI():
         Mints an NFT to an account, updates the metadata and creates a master edition
         """
         tx, signers = mint(api_endpoint, self.account, contract_key, dest_key, link, supply=supply)
+        resp = execute(
+            api_endpoint,
+            tx,
+            signers,
+            max_retries=max_retries,
+            skip_confirmation=skip_confirmation,
+            max_timeout=max_timeout,
+            target=target,
+            finalized=finalized,
+        )
+        resp["status"] = 200
+        return json.dumps(resp)
+        # except:
+        #     return json.dumps({"status": 400})
+
+    def updatemeta(self, api_endpoint, contract_key, dest_key, link, max_retries=3, skip_confirmation=False, max_timeout=60, target=20, finalized=True, supply=1 ):
+        """
+        Mints an NFT to an account, updates the metadata and creates a master edition
+        """
+        tx, signers = metadataUpdate(api_endpoint, self.account, contract_key, dest_key, link)
         resp = execute(
             api_endpoint,
             tx,

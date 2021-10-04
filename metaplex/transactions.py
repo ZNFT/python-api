@@ -107,6 +107,34 @@ def topup(api_endpoint, sender_account, to, amount=None):
     tx = tx.add(transfer_ix)
     return tx, signers
 
+def metadataUpdate(api_endpoint, source_account, contract_key, dest_key, link):
+    client = Client(api_endpoint)
+    mint_account = PublicKey(contract_key)
+    metadata = get_metadata(client, mint_account)
+    print(metadata)
+    signers = [source_account]
+    update_metadata_data = update_metadata_instruction_data(
+        metadata['data']['name'],
+        metadata['data']['symbol'],
+        "https://arweave.net/gUB0XnmfFlJXHDkLmUeUxP0kWvnfhkmiVYhbyo1lZnQ",
+        metadata['data']['creators'],
+        metadata['data']['verified'],
+        metadata['data']['share'],
+    )
+    update_metadata_ix = update_metadata_instruction(
+        update_metadata_data,
+        source_account.public_key(),
+        mint_account,
+    )
+    print(update_metadata_data)
+    print(source_account.public_key())
+    print(mint_account)
+    tx = Transaction()
+    tx.add(update_metadata_ix)
+    return tx, signers
+
+
+
 
 def mint(api_endpoint, source_account, contract_key, dest_key, link, supply=1):
     """
